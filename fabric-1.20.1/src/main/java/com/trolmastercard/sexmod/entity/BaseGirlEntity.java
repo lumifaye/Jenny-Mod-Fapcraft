@@ -110,6 +110,10 @@ public abstract class BaseGirlEntity extends PathAwareEntity implements GeoEntit
 
    protected BaseGirlEntity(EntityType<? extends BaseGirlEntity> type, World world) {
       super(type, world);
+      if (!world.isClient) {
+         // Set here, not as the tracked default: see initDataTracker().
+         this.dataTracker.set(GIRL_ID, UUID.randomUUID().toString());
+      }
       EntityNavigation navigation = this.getNavigation();
       if (navigation instanceof MobNavigation) {
          ((MobNavigation)navigation).setCanPathThroughDoors(true);
@@ -189,7 +193,11 @@ public abstract class BaseGirlEntity extends PathAwareEntity implements GeoEntit
    @Override
    protected void initDataTracker() {
       super.initDataTracker();
-      this.dataTracker.startTracking(GIRL_ID, UUID.randomUUID().toString());
+      // The default must be the same constant on both sides. A new entity only
+      // syncs values that differ from their default, so a random default here
+      // would stay on the server and the client would address every packet to
+      // an id the server does not know. The server picks the id in the constructor.
+      this.dataTracker.startTracking(GIRL_ID, "");
       this.dataTracker.startTracking(OUTFIT_INDEX, 1);
       this.dataTracker.startTracking(CUR_ACTION, Action.NULL.toString());
       this.dataTracker.startTracking(GIRL_HAND_STATES, "");

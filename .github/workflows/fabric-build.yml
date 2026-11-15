@@ -37,7 +37,7 @@ jobs:
       run:
         working-directory: fabric-1.20.1
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # lang/*.json and sounds.json are generated from the 1.12.2 assets and
       # from SoundHandler.java. Fail if they were not regenerated after a change.
@@ -49,18 +49,27 @@ jobs:
 
       # The mod targets Java 17 (options.release = 17); Loom itself needs a
       # newer JDK to run.
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v5
 
       - name: Build
-        run: ./gradlew build --stacktrace
+        run: |
+          set -o pipefail
+          ./gradlew build --stacktrace 2>&1 | tee build.log
+
+      # Puts compiler errors and Gradle's failure reason on the run's summary
+      # page, so the full log does not have to be opened.
+      - name: Report build errors
+        if: failure()
+        run: |
+          if [ -f build.log ]; then python3 tools/ci_report_failure.py build.log; fi
 
       - name: Upload jar
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: fapcraft-fabric-1.20.1-jar
           path: |

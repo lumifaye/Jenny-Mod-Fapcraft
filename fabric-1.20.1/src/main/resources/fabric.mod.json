@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "sexmod",
+  "version": "${version}",
+  "name": "Fapcraft",
+  "description": "Fabric 1.20.1 port of the Jenny Mod (Fapcraft). Adults only: this mod adds pornographic content to the game.",
+  "authors": [
+    "Trolmastercard",
+    "Anonymous dev team",
+    "RealCrystalNight"
+  ],
+  "contributors": [
+    "ReverseEngineeringEnthusiasts"
+  ],
+  "contact": {
+    "homepage": "https://github.com/ReverseEngineeringEnthusiasts/Jenny-Mod-Fapcraft"
+  },
+  "license": "GPL-3.0-only",
+  "icon": "logo.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.trolmastercard.sexmod.SexMod"
+    ],
+    "client": [
+      "com.trolmastercard.sexmod.client.SexModClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": "*",
+    "geckolib": ">=4.4.2"
+  }
+}

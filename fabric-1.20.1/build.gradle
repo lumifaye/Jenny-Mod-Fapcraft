@@ -1,0 +1,92 @@
+plugins {
+	id 'fabric-loom' version "${loom_version}"
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+repositories {
+	maven {
+		name = 'GeckoLib'
+		url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+		content {
+			includeGroupByRegex("software\\.bernie.*")
+			includeGroup("com.eliotlash.mclib")
+		}
+	}
+}
+
+loom {
+	// Common code lives in src/main, client-only code in src/client. Loom then
+	// refuses to compile common code that touches client classes, which is what
+	// keeps the mod loadable on a dedicated server.
+	splitEnvironmentSourceSets()
+
+	mods {
+		"sexmod" {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modImplementation "software.bernie.geckolib:geckolib-fabric-${project.minecraft_version}:${project.geckolib_version}"
+	implementation "com.eliotlash.mclib:mclib:20"
+}
+
+// The assets (models, animations, textures, sounds) are shared with the Forge
+// 1.12.2 build in the repository root instead of being copied: GeckoLib 4 reads
+// the same geo/animation JSON. Only what the ported characters use is pulled
+// in, so the list below grows as characters are ported (see PORTING.md).
+// Everything that changed format (lang, sounds.json, item models, loot tables,
+// mod metadata) lives in this project's own src/main/resources.
+def sharedResources = file('../src/main/resources')
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": inputs.properties.version
+	}
+	filesMatching("sexmod-build.properties") {
+		expand "version": inputs.properties.version
+	}
+
+	from(sharedResources) {
+		include 'banner.txt'
+		include 'logo.png'
+		include 'assets/sexmod/geo/jenny/**/*.json'
+		include 'assets/sexmod/animations/jenny/**/*.json'
+		include 'assets/sexmod/textures/entity/jenny/**/*.png'
+		include 'assets/sexmod/textures/gui/**/*.png'
+		include 'assets/sexmod/sounds/girls/jenny/**/*.ogg'
+		include 'assets/sexmod/sounds/misc/**/*.ogg'
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
+	it.options.encoding = 'UTF-8'
+}
+
+java {
+	withSourcesJar()
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+jar {
+	from(file('../LICENSE')) {
+		rename { "${it}_${project.base.archivesName.get()}" }
+	}
+}

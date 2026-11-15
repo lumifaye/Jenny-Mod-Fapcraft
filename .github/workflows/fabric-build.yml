@@ -1,0 +1,69 @@
+name: Fabric 1.20.1 build
+
+# Compiles the Fabric port in fabric-1.20.1/ and uploads the jar as an
+# artifact. It never publishes a release; releases stay with build.yml.
+#
+# Runs when the port, the assets it shares with the 1.12.2 build, or this
+# workflow change. It can also be started by hand from the Actions tab.
+
+on:
+  push:
+    paths:
+      - 'fabric-1.20.1/**'
+      - 'src/main/resources/**'
+      - 'LICENSE'
+      - '.github/workflows/fabric-build.yml'
+  pull_request:
+    paths:
+      - 'fabric-1.20.1/**'
+      - 'src/main/resources/**'
+      - 'LICENSE'
+      - '.github/workflows/fabric-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fabric-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Fabric jar
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: fabric-1.20.1
+    steps:
+      - uses: actions/checkout@v4
+
+      # lang/*.json and sounds.json are generated from the 1.12.2 assets and
+      # from SoundHandler.java. Fail if they were not regenerated after a change.
+      - name: Check generated resources are up to date
+        run: |
+          python3 tools/convert_lang.py
+          python3 tools/gen_sounds.py
+          git diff --exit-code -- src/main/resources
+
+      # The mod targets Java 17 (options.release = 17); Loom itself needs a
+      # newer JDK to run.
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build
+        run: ./gradlew build --stacktrace
+
+      - name: Upload jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: fapcraft-fabric-1.20.1-jar
+          path: |
+            fabric-1.20.1/build/libs/*.jar
+            !fabric-1.20.1/build/libs/*-sources.jar
+          if-no-files-found: error

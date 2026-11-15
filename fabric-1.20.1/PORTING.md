@@ -7,8 +7,8 @@ This directory is a port of the Forge 1.12.2 mod in the repository root to
 sources and build are untouched, and both builds read the same models,
 animations, textures and sounds from `../src/main/resources`.
 
-**State: the core and Jenny are ported. It compiles, but it has never been
-run.** See [What has been checked](#what-has-been-checked) before relying on it.
+**State: the core and Jenny are ported. It builds on GitHub Actions, but it has
+never been run.** See [What has been checked](#what-has-been-checked) before relying on it.
 
 ## Building
 
@@ -30,19 +30,23 @@ Fabric Loader 0.16.14, Fabric API 0.92.6, GeckoLib 4.4.2.
 
 ## What has been checked
 
-The port was written without a working Gradle or Minecraft, so:
+The port was written without a local Gradle or Minecraft. The build is checked
+on GitHub Actions by `.github/workflows/fabric-build.yml` ("Fabric 1.20.1
+build"), which runs `./gradlew build` on every push or pull request that touches
+this folder or the shared resources, and uploads the jar as the artifact
+`fapcraft-fabric-1.20.1-jar`. It does not publish a release.
 
 | Check | Result |
 |---|---|
-| All Java sources compile against Minecraft 1.20.1 (Yarn `build.10`), Fabric API 0.92.6 and GeckoLib 4.4.2 | Passes. Done with the Eclipse compiler at Java 11 source level, not with Loom. |
+| All Java sources compile against Minecraft 1.20.1 (Yarn `build.10`), Fabric API 0.92.6 and GeckoLib 4.4.2 | Passes in CI (`./gradlew build`, javac under Loom). |
 | `src/main` compiles without `src/client`, and uses no client-only Minecraft class or member | Passes (needed for dedicated servers and for Loom's split source sets). |
 | GeckoLib 4.4.2's own loader parses Jenny's two models and her animation file | Passes: 294 and 243 bones, 38 animations. |
 | Every sound the code registers exists in `sounds.json` and as an `.ogg` | Passes (147 sounds). This check found one sound that 1.12.2 registered but never shipped (`girls.jenny.hmph.hmph4`). |
 | Every shipped asset path is a valid 1.20.1 resource path | Passes. |
-| `./gradlew build` | **Not run.** |
+| `./gradlew build` (compile, resources, remapped jar) | Passes in CI on Java 21, Gradle 8.14.2. Not run on any other machine. |
 | Starting the game, rendering, playing a scene | **Not run.** |
 
-Expect the first real build and the first play session to turn up problems.
+Expect the first play session to turn up problems.
 The most likely places:
 
 - **Item placement on the model** (`JennyRenderer.HeldItemLayer`): the angles

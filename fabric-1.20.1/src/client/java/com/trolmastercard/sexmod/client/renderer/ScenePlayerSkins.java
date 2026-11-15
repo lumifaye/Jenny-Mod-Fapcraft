@@ -32,9 +32,9 @@ public final class ScenePlayerSkins {
    /** ABGR: rgb(245, 157, 169). */
    private static final int BLUSH_COLOR = 0xFFA99DF5;
 
-   private static final Map<UUID, Entry> CACHE = new LinkedHashMap<UUID, Entry>(16, 0.75F, true) {
+   private static final Map<UUID, SceneSkin> CACHE = new LinkedHashMap<UUID, SceneSkin>(16, 0.75F, true) {
       @Override
-      protected boolean removeEldestEntry(Map.Entry<UUID, Entry> eldest) {
+      protected boolean removeEldestEntry(Map.Entry<UUID, SceneSkin> eldest) {
          if (this.size() <= CAPACITY) {
             return false;
          }
@@ -72,7 +72,7 @@ public final class ScenePlayerSkins {
          return null;
       }
       Identifier source = player.getSkinTexture();
-      Entry entry = CACHE.get(player.getUuid());
+      SceneSkin entry = CACHE.get(player.getUuid());
       // The source changes when the real skin finishes downloading; rebuild then.
       if (entry != null && entry.source.equals(source)) {
          return entry.texture;
@@ -81,7 +81,7 @@ public final class ScenePlayerSkins {
          entry.destroy();
       }
       Identifier texture = createSceneSkin(player.getUuid(), source);
-      CACHE.put(player.getUuid(), new Entry(source, texture, !texture.equals(source)));
+      CACHE.put(player.getUuid(), new SceneSkin(source, texture, !texture.equals(source)));
       return texture;
    }
 
@@ -115,18 +115,18 @@ public final class ScenePlayerSkins {
    }
 
    public static void clear() {
-      for (Entry entry : CACHE.values()) {
+      for (SceneSkin entry : CACHE.values()) {
          entry.destroy();
       }
       CACHE.clear();
    }
 
-   private static final class Entry {
+   private static final class SceneSkin {
       final Identifier source;
       final Identifier texture;
       final boolean owned;
 
-      Entry(Identifier source, Identifier texture, boolean owned) {
+      SceneSkin(Identifier source, Identifier texture, boolean owned) {
          this.source = source;
          this.texture = texture;
          this.owned = owned;

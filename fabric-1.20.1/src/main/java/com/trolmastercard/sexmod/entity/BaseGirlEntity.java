@@ -795,7 +795,7 @@ public abstract class BaseGirlEntity extends PathAwareEntity implements GeoEntit
       );
       AnimationController<BaseGirlEntity> controller = state.getController();
       if (controller == this.actionController) {
-         controller.setTransitionLength(this.getCurrentAction().transitionTick);
+         controller.transitionLength(this.getCurrentAction().transitionTick);
       }
       controller.setAnimation(animation);
    }

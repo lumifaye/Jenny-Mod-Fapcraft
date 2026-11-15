@@ -291,21 +291,16 @@ public class JennyEntity extends AbstractGirlNpcEntity implements IEllie, IBedda
    /** Server side: walk to the free side of the nearest bed, then get on it. */
    @Override
    public void goToSexBed() {
-      BlockPos bedPos = this.getNearestBed();
+      BlockPos bedPos = GirlBedPlacement.findNearestBedWithFreeSide(this);
       if (bedPos == null) {
-         this.sendGirlChatMessage("no bed in sight...");
+         // Either there is no bed, or every bed nearby has blocks on all four sides.
+         this.sendGirlChatMessage(GirlBedPlacement.findNearestBed(this) == null ? "no bed in sight..." : "bed is obscured...");
          this.setCurrentAction(Action.NULL);
          ModPackets.resetGirl(this);
          return;
       }
       Vec3d bedVec = Vec3d.of(bedPos);
       int side = GirlBedPlacement.findFreeSide(this, bedVec);
-      if (side == -1) {
-         this.sendGirlChatMessage("bed is obscured...");
-         this.setCurrentAction(Action.NULL);
-         ModPackets.resetGirl(this);
-         return;
-      }
       this.removeWanderGoals();
       Vec3d bedSide = bedVec.add(GirlBedPlacement.SIDE_OFFSETS[side][0]);
       this.setAnchored(false);

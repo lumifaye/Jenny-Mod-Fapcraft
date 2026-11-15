@@ -202,7 +202,8 @@ public final class ModPackets {
          boolean anchorInFront = buf.readBoolean();
          server.execute(() -> {
             BaseGirlEntity girl = girlNear(player, girlId);
-            if (girl != null) {
+            // A girl who is in a scene with someone else cannot be taken over.
+            if (girl != null && isScenePlayerOrNoScene(girl, player)) {
                startScene(girl, player.getUuid(), walkToPlayer, anchorInFront);
             }
          });

@@ -30,6 +30,7 @@ RENAMES = {
 
 ADDED = {
     "item.sexmod.jenny_spawn_egg": "Jenny Spawn Egg",
+    "item.sexmod.ellie_spawn_egg": "Ellie Spawn Egg",
     "window.pornwarning.quit": "The game will close now.",
     "sexmod.menu.cost": "Costs %s",
     "sexmod.menu.cannot_afford": "You cannot afford this",

@@ -4,6 +4,7 @@ import com.trolmastercard.sexmod.SexMod;
 import com.trolmastercard.sexmod.client.gui.AgeGateScreen;
 import com.trolmastercard.sexmod.client.gui.HornyMeterHud;
 import com.trolmastercard.sexmod.client.gui.TransitionOverlay;
+import com.trolmastercard.sexmod.client.renderer.EllieRenderer;
 import com.trolmastercard.sexmod.client.renderer.JennyRenderer;
 import com.trolmastercard.sexmod.client.renderer.ScenePlayerSkins;
 import com.trolmastercard.sexmod.entity.BaseGirlEntity;
@@ -22,6 +23,7 @@ public class SexModClient implements ClientModInitializer {
       SexMod.CLIENT = new ClientBridgeImpl();
 
       EntityRendererRegistry.register(SexModEntities.JENNY, JennyRenderer::new);
+      EntityRendererRegistry.register(SexModEntities.ELLIE, EllieRenderer::new);
       ClientPackets.register();
 
       ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {

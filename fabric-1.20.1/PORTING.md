@@ -40,16 +40,16 @@ this folder or the shared resources, and uploads the jar as the artifact
 |---|---|
 | All Java sources compile against Minecraft 1.20.1 (Yarn `build.10`), Fabric API 0.92.6 and GeckoLib 4.4.2 | Passes in CI (`./gradlew build`, javac under Loom). |
 | `src/main` compiles without `src/client`, and uses no client-only Minecraft class or member | Passes (needed for dedicated servers and for Loom's split source sets). |
-| GeckoLib 4.4.2's own loader parses Jenny's two models and her animation file | Passes: 294 and 243 bones, 38 animations. |
-| Every sound the code registers exists in `sounds.json` and as an `.ogg` | Passes (147 sounds). This check found one sound that 1.12.2 registered but never shipped (`girls.jenny.hmph.hmph4`). |
+| GeckoLib 4.4.2's own loader parses Jenny's two models and her animation file | Passes: 294 and 243 bones, 38 animations. Ellie's files were **not** run through the loader; a script confirmed they use the same format versions and the same set of JSON features as Jenny's. |
+| Every sound the code registers exists in `sounds.json` and as an `.ogg` | Passes (243 sounds). This check found one sound that 1.12.2 registered but never shipped (`girls.jenny.hmph.hmph4`). |
 | Every shipped asset path is a valid 1.20.1 resource path | Passes. |
 | `./gradlew build` (compile, resources, remapped jar) | Passes in CI on Java 21, Gradle 8.14.2. Not run on any other machine. |
-| Starting the game, rendering, playing a scene | **Not run.** |
+| Starting the game, rendering, playing a scene | **Not run where the port is written.** From a user's reports: the game starts, Jenny is drawn, her menu works and her scenes start. Nothing about Ellie has been seen in a game. |
 
 Expect the first play session to turn up problems.
 The most likely places:
 
-- **Item placement on the model** (`JennyRenderer.HeldItemLayer`): the angles
+- **Item placement on the model** (`GirlRenderer.renderItemAtBone`): the angles
   for her sword, her bow and the items handed over during payment are the
   1.12.2 numbers, applied through a different renderer.
 - **Player placement during scenes** (`BaseGirlEntity.positionPlayerRelative`
@@ -58,6 +58,14 @@ The most likely places:
 - **The scene player's body** (`ScenePlayerSkins`): the skin is read back from
   the GPU and repainted. If that fails, the plain skin is used and a warning is
   logged.
+- **Ellie's bed scenes**: the player is placed where the animation shows their
+  body, which is partly inside the bed and the floor (`EllieEntity.startActionFromHandState`).
+  1.12.2 switched the player's collision off for that; Fabric cannot do that
+  for a player without a mixin, so the player is only made weightless. If the
+  view slides or jitters there, this is why.
+- **Shading of flat model parts** (`GirlRenderer.renderCube`): changed from
+  GeckoLib's default to what the 1.12.2 renderer did. Reasoned from the two
+  renderers' source, not seen on screen.
 - **Scene timing**: scenes advance on GeckoLib sound keyframes, and GeckoLib 4
   fires them slightly differently from GeckoLib 3 (earlier by the length of
   the blend into the animation).
@@ -71,26 +79,31 @@ The most likely places:
 | Girl base class: synced state, action state machine, anchoring, player placement, chat, sounds, animation controllers | `entity/BaseGirlEntity`, `entity/Action` | NBT keys are those of 1.12.2. |
 | Companion behaviour: follow, teleport to master, melee and bow, downed instead of dying, healing, go home, set home | `entity/AbstractGirlNpcEntity`, `entity/ai/GirlFollowGoal` | |
 | **Jenny**: menu, payment, all of her scenes, undress and dress, bed finding | `entity/JennyEntity`, `entity/GirlBedPlacement` | Every animation the 1.12.2 Jenny code plays. |
-| Jenny's model and renderer | `client/model/JennyModel`, `client/renderer/JennyRenderer`, `client/renderer/ScenePlayerSkins` | GeckoLib 4. |
+| **Ellie**: menu, undress and dress, the hug and the two bed scenes it leads to (cowgirl, missionary), the carry scene, ducking under low ceilings | `entity/EllieEntity`, `entity/GirlBedPlacement` | Every animation the 1.12.2 Ellie code plays. Her head does not follow the player while she sits on the bed. |
+| Models and renderers | `client/model/GirlModel`, `client/renderer/GirlRenderer` (shared), `JennyModel`, `JennyRenderer`, `EllieModel`, `EllieRenderer`, `client/renderer/ScenePlayerSkins` | GeckoLib 4. |
 | Network protocol | `networking/ModPackets`, `client/ClientPackets` | 12 channels, covering what Jenny and companions use (1.12.2 has 47 packet classes). The server now checks who sent what; see differences. |
 | Scene controls and HUD | `client/SceneControls`, `client/gui/HornyMeterHud`, `client/gui/TransitionOverlay` | Sneak = faster, jump with a full meter = finish. |
 | Action menu | `client/gui/ActionMenuScreen` | Vanilla buttons instead of the custom-drawn 1.12.2 screen. |
 | Horny potion | `potion/HornyPotion` | Mundane potion + poppy. |
 | Sounds | `util/SoundHandler`, `tools/gen_sounds.py` | |
 | Translations | `tools/convert_lang.py` | All 15 languages, converted to JSON. |
-| Jenny's loot table and spawn egg | `data/sexmod/loot_tables/entities/jenny.json`, `item/ModItems` | |
+| Loot tables and spawn eggs | `data/sexmod/loot_tables/entities/{jenny,ellie}.json`, `item/ModItems` | |
 
-Jenny is placed with her spawn egg (Spawn Eggs creative tab) or
-`/summon sexmod:jenny`.
+The girls are placed with their spawn eggs (Spawn Eggs creative tab) or
+`/summon sexmod:jenny`, `/summon sexmod:ellie`.
+
+Ellie's bed scenes start as in 1.12.2: throw a splash horny potion at her
+while you stand within 10 blocks, and have a bed within 16 blocks whose foot
+or head end has a free block in front of it.
 
 ## What is not ported
 
-The 1.12.2 mod is 378 Java files (about 69,700 lines). This port is 30 files
-(about 4,900 lines). Not ported yet:
+The 1.12.2 mod is 378 Java files (about 69,700 lines). This port is 35 files
+(about 6,100 lines). Not ported yet:
 
-- **Characters**: Ellie, Bia, Luna, Allie, the slime girl, the bee, the goblins,
+- **Characters**: Bia, Luna, Allie, the slime girl, the bee, the goblins,
   the kobolds and their tribe system, Galath. Each needs its entity, model,
-  renderer and scenes, the way Jenny has them.
+  renderer and scenes, the way Jenny and Ellie have them.
 - **Player-as-girl mode** (`AbstractPlayerGirlEntity` and the model/renderer
   classes for it).
 - **The reskin system and the Girl Wand** (custom model loader and its GUI).
@@ -135,11 +148,32 @@ Behaviour that was changed on purpose:
   sees the girl. In 1.12.2 each of them reported the state changes; now only
   the scene's player does (outside a scene: the client of the nearest player).
 - **Waiting on the bed.** In 1.12.2 any player who walked up to a waiting
-  Jenny was pulled into the scene. Now only the player who asked for it is,
-  and she gives up after one minute.
+  Jenny or Ellie was pulled into the scene. Now only the player who asked for
+  it is, and she gives up after one minute.
+- **Finding a bed.** The 1.12.2 search never tested the block the girl stands
+  in or the blocks right next to it, and reached about 10 blocks. A scene
+  that started with the player facing the bed from close by put the girl onto
+  the bed, where she then reported "no bed in sight...". The search now
+  covers every block within 16 blocks horizontally and 3 vertically, nearest
+  first, and skips beds that have no usable side instead of stopping at the
+  first one. A side also counts as free if it holds carpet, a plant, a torch
+  or a snow layer (1.12.2: air only).
+- **Shading of flat cubes.** About four in ten cubes of the models are flat
+  (hair, lashes, cloth) and are drawn from both sides. GeckoLib 4 corrects
+  their normals after the camera rotation is applied, so their brightness
+  changed as the view turned. `GirlRenderer` corrects them in the model's own
+  space, as the 1.12.2 renderer did, and brings normals back to unit length.
+- **Ellie.** She gives up if nobody answers the menu after the hug, if she
+  cannot reach the bed within 30 seconds, or if nobody comes to the bed. The
+  player is lifted for the second half of her carry intro; the 1.12.2 source
+  contains that code but never calls it. Her kissing sounds are her own set
+  (1.12.2 played Allie's).
+- **A scene ends when its player leaves.** If the scene's player logs out or
+  changes dimension, the girl is released.
 - **Being stuck is recoverable.** The movement lock releases itself after 5
   seconds without a girl bound to the player. Attack and pearl animations end
-  on the server if no client reports their end.
+  on the server if no client reports their end. A girl who is in a scene
+  cannot be pulled into another one by a second player.
 - **18+ confirmation.** Answering "below 18" closes the game. 1.12.2 also
   deleted the mod's jar; this port does not delete files. "Don't ask again"
   uses the same marker file (`sexmod/dontAskAgain` in the game directory).
@@ -173,14 +207,20 @@ dedicated server and `ClientBridgeImpl` on a client.
 
 ### Porting another character
 
+`EllieEntity` is the smaller of the two examples.
+
 1. Add its entity (extend `BaseGirlEntity` or `AbstractGirlNpcEntity`),
-   following `JennyEntity`: menu, `doAction`, `animationPredicate`,
-   `onSoundKeyframe`. Register it in `SexModEntities`.
-2. Add a `GeoModel` and a renderer under `src/client`, register the renderer
-   in `SexModClient`.
+   following `JennyEntity` or `EllieEntity`: menu, `doAction`,
+   `animationPredicate`, `onSoundKeyframe`. Register it in `SexModEntities`.
+2. Add a model (a `GirlModel` subclass naming its files) and a renderer (a
+   `GirlRenderer` subclass with its weapon angles) under `src/client`, and
+   register the renderer in `SexModClient`.
 3. Declare its sounds in `SoundHandler` and run `python3 tools/gen_sounds.py`.
 4. Add its asset directories to the `include` list in `build.gradle`.
-5. Add packets it needs to `ModPackets`, with sender checks like the existing ones.
+5. Add its spawn egg in `ModItems`, the egg's model under
+   `assets/sexmod/models/item/`, the egg's name to `ADDED` in
+   `tools/convert_lang.py` (then run it), and its loot table.
+6. Add packets it needs to `ModPackets`, with sender checks like the existing ones.
 
 Sources are kept free of records, pattern-matching `instanceof`, switch
 expressions and text blocks, so they can also be checked with a Java 11 level

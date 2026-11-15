@@ -83,7 +83,7 @@ The process is nearly identical:
 
 ### Fabric 1.20.1 port (work in progress)
 
-[`fabric-1.20.1/`](fabric-1.20.1/) is a port to Fabric for Minecraft 1.20.1. So far it covers the core systems and Jenny, and it has not been run in a game yet. [`fabric-1.20.1/PORTING.md`](fabric-1.20.1/PORTING.md) says how to build it, what is ported, what is not, and what differs from 1.12.2.
+[`fabric-1.20.1/`](fabric-1.20.1/) is a port to Fabric for Minecraft 1.20.1. So far it covers the core systems, Jenny and Ellie, and it has had very little testing in a game. [`fabric-1.20.1/PORTING.md`](fabric-1.20.1/PORTING.md) says how to build it, what is ported, what is not, and what differs from 1.12.2.
 
 ### Screenshots
 

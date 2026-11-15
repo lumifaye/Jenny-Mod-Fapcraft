@@ -43,6 +43,23 @@ public final class SoundHandler {
    public static final SoundEvent[] GIRLS_JENNY_MOAN = new SoundEvent[8];
    public static final SoundEvent[] GIRLS_JENNY_SADOH = new SoundEvent[2];
    public static final SoundEvent[] GIRLS_JENNY_SIGH = new SoundEvent[2];
+   public static final SoundEvent[] GIRLS_ELLIE_AFTERSESSIONMOAN = new SoundEvent[5];
+   public static final SoundEvent[] GIRLS_ELLIE_AHH = new SoundEvent[10];
+   public static final SoundEvent[] GIRLS_ELLIE_BJMOAN = new SoundEvent[13];
+   public static final SoundEvent[] GIRLS_ELLIE_GIGGLE = new SoundEvent[5];
+   public static final SoundEvent[] GIRLS_ELLIE_HAPPYOH = new SoundEvent[3];
+   public static final SoundEvent[] GIRLS_ELLIE_HEAVYBREATHING = new SoundEvent[8];
+   public static final SoundEvent[] GIRLS_ELLIE_HMPH = new SoundEvent[4];
+   public static final SoundEvent[] GIRLS_ELLIE_HUH = new SoundEvent[2];
+   public static final SoundEvent[] GIRLS_ELLIE_LIGHTBREATHING = new SoundEvent[8];
+   public static final SoundEvent[] GIRLS_ELLIE_LIPSOUND = new SoundEvent[10];
+   public static final SoundEvent[] GIRLS_ELLIE_MMM = new SoundEvent[9];
+   public static final SoundEvent[] GIRLS_ELLIE_MOAN = new SoundEvent[9];
+   public static final SoundEvent[] GIRLS_ELLIE_SADOH = new SoundEvent[2];
+   public static final SoundEvent[] GIRLS_ELLIE_SIGH = new SoundEvent[2];
+   public static final SoundEvent[] GIRLS_ELLIE_COMETOMOMMY = new SoundEvent[2];
+   public static final SoundEvent[] GIRLS_ELLIE_GOODBOY = new SoundEvent[2];
+   public static final SoundEvent[] GIRLS_ELLIE_MOMMYHORNY = new SoundEvent[2];
 
    private static final Random RANDOM = new Random();
    private static final HashMap<SoundEvent, Integer> LAST_RANDOM_SOUND = new HashMap<>();

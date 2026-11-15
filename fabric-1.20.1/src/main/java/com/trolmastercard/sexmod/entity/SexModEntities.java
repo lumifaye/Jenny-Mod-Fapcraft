@@ -10,9 +10,10 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
 /**
- * Entity types. Only Jenny is ported so far; {@code PORTING.md} lists the
- * rest. Natural spawning and the world-gen structures of 1.12.2 are not
- * ported either, so she is placed with her spawn egg or {@code /summon sexmod:jenny}.
+ * Entity types. Jenny and Ellie are ported so far; {@code PORTING.md} lists
+ * the rest. Natural spawning and the world-gen structures of 1.12.2 are not
+ * ported either, so they are placed with their spawn eggs or
+ * {@code /summon sexmod:jenny}, {@code /summon sexmod:ellie}.
  */
 public final class SexModEntities {
    public static final EntityType<JennyEntity> JENNY = Registry.register(
@@ -25,10 +26,22 @@ public final class SexModEntities {
          .build()
    );
 
+   /** The 1.12.2 hitbox. She is drawn taller than it and ducks under two-block ceilings. */
+   public static final EntityType<EllieEntity> ELLIE = Registry.register(
+      Registries.ENTITY_TYPE,
+      SexMod.id("ellie"),
+      FabricEntityTypeBuilder.create(SpawnGroup.CREATURE, EllieEntity::new)
+         .dimensions(EntityDimensions.fixed(0.6F, 1.8F))
+         .trackRangeBlocks(80)
+         .trackedUpdateRate(3)
+         .build()
+   );
+
    private SexModEntities() {
    }
 
    public static void registerEntities() {
       FabricDefaultAttributeRegistry.register(JENNY, BaseGirlEntity.createGirlAttributes());
+      FabricDefaultAttributeRegistry.register(ELLIE, BaseGirlEntity.createGirlAttributes());
    }
 }

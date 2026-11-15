@@ -70,6 +70,10 @@ processResources {
 		include 'assets/sexmod/textures/entity/jenny/**/*.png'
 		include 'assets/sexmod/textures/gui/**/*.png'
 		include 'assets/sexmod/sounds/girls/jenny/**/*.ogg'
+		include 'assets/sexmod/geo/ellie/**/*.json'
+		include 'assets/sexmod/animations/ellie/**/*.json'
+		include 'assets/sexmod/textures/entity/ellie/**/*.png'
+		include 'assets/sexmod/sounds/girls/ellie/**/*.ogg'
 		include 'assets/sexmod/sounds/misc/**/*.ogg'
 	}
 }

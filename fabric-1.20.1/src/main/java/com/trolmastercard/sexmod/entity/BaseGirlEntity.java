@@ -443,6 +443,11 @@ public abstract class BaseGirlEntity extends PathAwareEntity implements GeoEntit
    @Override
    protected void mobTick() {
       super.mobTick();
+      // Her scene's player is no longer in this world (logged out, changed dimension).
+      if (this.getInteractionPlayerUUID() != null && this.getInteractionPlayer() == null) {
+         this.setCurrentAction(Action.NULL);
+         ModPackets.resetGirl(this);
+      }
       if (this.isAnchored()) {
          Vec3d target = this.getTargetPosition();
          float yaw = this.getYawRotation();
@@ -712,10 +717,6 @@ public abstract class BaseGirlEntity extends PathAwareEntity implements GeoEntit
       }
    }
 
-   @Nullable
-   protected BlockPos getNearestBed() {
-      return GirlBedPlacement.findNearestBed(this.getWorld(), this.getBlockPos(), 22, 3);
-   }
 
    // ------------------------------------------------------------------ chat
 
@@ -763,6 +764,14 @@ public abstract class BaseGirlEntity extends PathAwareEntity implements GeoEntit
 
    public void playSoundAtVolume(SoundEvent sound, float volume) {
       this.playSoundAtPosition(sound, volume, 1.0F);
+   }
+
+   public void playRandomSound(SoundEvent[] sounds) {
+      this.playSound(sounds[this.random.nextInt(sounds.length)]);
+   }
+
+   public void playRandomSoundAtVolume(SoundEvent[] sounds, float volume) {
+      this.playSoundAtPosition(sounds[this.random.nextInt(sounds.length)], volume, 1.0F);
    }
 
    @Override
